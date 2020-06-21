@@ -1,7 +1,9 @@
 // =============================================================================
 // CONFIGS
 // =============================================================================
-console.log(`⚡ Running ${require("./package.json").name}`)
+const NODE_ENV = process.env.NODE_ENV || "development"
+const isProduction = NODE_ENV === 'production'
+console.log(`⚡ Running ${require('./package.json').name} ${NODE_ENV} mode`)
 const task = {
   WATCH: 'watch',
   CSS: 'css',
@@ -12,17 +14,34 @@ const task = {
 const {
   minify,
   sourcemap,
-  autoprefix,
-  flexbugsfix,
-  browsers = [">0.3%", "not ie 11", "not dead", "not op_mini all"], // browser support list
+  autoprefix = true,
+  flexbugsfix = true,
+  javascriptEnabled = true,
+  browserslist = { // browser support list
+    "production": [
+      ">0.3%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version",
+      "last 1 ie version"
+    ]
+  },
+  // `less-plugin-glob` allows to import multiple less files using glob expressions (e.g. @import "common/**";)
+  // `less-plugin-functions` allows to define custom less js-like functions
   plugins = ['less-plugin-glob', 'less-plugin-functions'],
+  postcssPlugins = [],
+  postcssOptions,
 } = require('minimist')(process.argv.slice(2))
 const themeConfigPath = '../../node_modules/semantic-ui-less/theme.config'
 const input = 'style/' // relative path to styles folder
 const output = 'public/static/'
 const pwd = __dirname + '/'
 const hasSourcemap = !!sourcemap
-const shouldMinify = !!minify
+const shouldMinify = isProduction || !!minify
 const files = {
   // Files to watch
   watch: {
@@ -38,13 +57,6 @@ const files = {
     fonts: output + 'fonts/',
   }
 }
-const isProduction = process.env.NODE_ENV === 'production'
-
-// =============================================================================
-// VALIDATION
-// =============================================================================
-if (!plugins || plugins.constructor !== Array) throw new Error('plugins must be an array of strings')
-const lessPlugins = plugins.map(require)
 
 // =============================================================================
 // DEPENDENCIES
@@ -60,18 +72,25 @@ const sourcemaps = require('gulp-sourcemaps')
 const plumber = require('gulp-plumber')
 const rename = require('gulp-rename')
 const liveReload = require('gulp-livereload')
+const log = require('fancy-log')
 /* compiles less files to css */
 const less = require('gulp-less')
-/* allows to import multiple less files using glob expressions (e.g. @import "common/**";) */
-/* usage: .pipe(less({plugins: [lessglob]})) */
-const log = require("fancy-log")
-/* css browser prefixes */
-// const autoprefixer = require('autoprefixer')({ browsers: browsers });
-const postcss = require('gulp-postcss');
+/* css post processing */
+const postcss = require('gulp-postcss')
 /* minify css with cssnano because csso (fastest) does not work with postcss */
 /* see benchmark: http://goalsmashers.github.io/css-minification-benchmark/ */
 /* and since we only need css minification in production, speed is not important */
-// const cssnano = require('cssnano');
+
+// =============================================================================
+// VALIDATION
+// =============================================================================
+if (!plugins || plugins.constructor !== Array) throw new Error('plugins must be an array of strings')
+if (!postcssPlugins || postcssPlugins.constructor !== Array) throw new Error('plugins must be an array of strings')
+const lessPlugins = plugins.map(require)
+if (flexbugsfix) postcssPlugins.push('postcss-flexbugs-fixes')
+if (shouldMinify) postcssPlugins.push('cssnano')
+const cssPlugins = postcssPlugins.filter((value, index, self) => self.indexOf(value) === index).map(require)
+if (autoprefix) cssPlugins.push(require('autoprefixer')({ overrideBrowserslist: browserslist }))
 
 // =============================================================================
 // TASKS
@@ -98,8 +117,9 @@ gulp.task(task.CSS, function () {
       this.emit('end')
     }))
     .pipe(gulpIf(hasSourcemap, sourcemaps.init()))
-    .pipe(less({plugins: lessPlugins, javascriptEnabled: true}))
-    .pipe(rename({basename: 'all'}))
+    .pipe(less({plugins: lessPlugins, javascriptEnabled}))
+    // .pipe(rename({basename: 'all'}))
+    .pipe(postcss(cssPlugins, postcssOptions))
     .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
     .pipe(gulp.dest(files.build.css))
     .pipe(liveReload())

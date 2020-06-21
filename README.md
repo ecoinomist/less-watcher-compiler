@@ -20,7 +20,21 @@ module.exports = function () {
     sourcemap: false,
     autoprefix: true,
     flexbugsfix: true,
-    browsers: [">0.3%", "not ie 11", "not dead", "not op_mini all"],
+    browserslist: {
+      "production": [
+        ">0.3%",
+        "not dead",
+        "not op_mini all"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version",
+        "last 1 ie version"
+      ]
+    },
+    postcssPlugins: [], // additional PostCSS plugins to use (you must install them yourself)
+    postcssOptions: undefined, // additional PostCSS options to use (i.e. `{ parser: 'sugarss' }`)
     plugins: [
       'less-plugin-glob',
       'less-plugin-functions',
@@ -46,7 +60,7 @@ yarn style
 
 To compile only once (useful for production build), run:
 ```
-yarn style css
+NODE_ENV=production yarn style css
 ```
 
 To watch and compile with Semantic UI theme.config, run:
