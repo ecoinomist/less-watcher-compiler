@@ -22,7 +22,8 @@ module.exports = function () {
     flexbugsfix: true,
     browsers: [">0.3%", "not ie 11", "not dead", "not op_mini all"],
     plugins: [
-      'functions', // use `less-plugin-functions`
+      'less-plugin-glob',
+      'less-plugin-functions',
     ],
     // ...Other options passed to `lessc` compiler (currently using `gulp-less` npm package)
   }
@@ -40,10 +41,15 @@ Add this script to `package.json`:
 
 To watch and compile, run:
 ```
-yarn style 
+yarn style
 ```
 
 To compile only once (useful for production build), run:
 ```
 yarn style css
+```
+
+To watch and compile with Semantic UI theme.config, run:
+```
+yarn style theme.config watch
 ```
