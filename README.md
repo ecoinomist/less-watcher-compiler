@@ -18,12 +18,13 @@ module.exports = function () {
   return {
     minify: false,
     sourcemap: false,
-    autoprefixer: true,
-    flexbugsfixer: true,
+    autoprefix: true,
+    flexbugsfix: true,
     browsers: [">0.3%", "not ie 11", "not dead", "not op_mini all"],
     plugins: [
       'functions', // use `less-plugin-functions`
     ],
+    // ...Other options passed to `lessc` compiler (currently using `gulp-less` npm package)
   }
 }
 ```
