@@ -1,16 +1,18 @@
-##LESS CSS Watcher + Compiler
+## LESS CSS Watcher + Compiler
+![less-watcher-compiler-cli](docs/less-watcher-compiler.png)
 1. Watch for file changes and compile less to css. 
-2. Many options: minify, add autoprefixer and flexbugs fixes using PostCSS, etc. (see below).
-3. Works when files are added/removed/edited. 
-4. Watcher resumes after compilation errors are fixed, without exiting process.
-5. Configure multiple source files to watch for changes, and corresponding output file to compile.
+2. Customizable lessc options: minify, autoprefixer and flexbugs fixes using PostCSS, etc. (see below).
+3. Works when files are added/removed/edited, and watcher updates efficiently. 
+4. Resume watching after compilation errors are fixed, without exiting process.
+5. Configure multiple source files to watch for changes, and corresponding task to execute.
+6. Reload CSS without refreshing app state in browser (using [LiveReload](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei?hl=en) - better and faster than Hot reloading)
 
-###Installation
+### Installation
 ```
 yarn add -D less-watcher-compiler
 ```
 
-###Options
+### Options
 Create less-watcher-compiler.config.js (optional) in the root directory with this content:
 ```
 module.exports = function (defaultConfig) {
@@ -75,7 +77,7 @@ module.exports = function (defaultConfig) {
 All options can be passed as command line (cli) arguments, which will override config file options.
 
 
-###Usage
+### Usage
 Add this script to `package.json`:
 ```
   ...
@@ -86,7 +88,7 @@ Add this script to `package.json`:
 
 To watch and compile, run:
 ```
-yarn style
+yarn style --sourcemap
 ```
 
 To compile only once (useful for production build), run:
