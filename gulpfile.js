@@ -1,15 +1,13 @@
 // =============================================================================
 // CONFIGS
 // =============================================================================
+const themeConfigPath = '../../node_modules/semantic-ui-less/theme.config'
+const input = 'test/' // relative path to styles folder
+const output = 'public/static/'
+const pwd = __dirname + '/'
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const isProduction = NODE_ENV === 'production'
 console.log(`⚡ Running ${require('./package.json').name} ${NODE_ENV} mode`)
-const TASK = {
-  WATCH: 'watch',
-  CSS: 'css',
-  FONTS: 'fonts',
-  THEME_CONFIG: 'theme.config',
-}
 // Get arguments passed to command line
 const {
   minify,
@@ -36,10 +34,6 @@ const {
   postcssPlugins = [],
   postcssOptions,
 } = require('minimist')(process.argv.slice(2))
-const themeConfigPath = '../../node_modules/semantic-ui-less/theme.config'
-const input = 'style/' // relative path to styles folder
-const output = 'public/static/'
-const pwd = __dirname + '/'
 const hasSourcemap = !!sourcemap
 const shouldMinify = isProduction || !!minify
 const files = {
@@ -102,6 +96,13 @@ const cssPlugins = postcssPlugins.filter((value, index, self) => self.indexOf(va
 // =============================================================================
 // TASKS
 // =============================================================================
+
+const TASK = {
+  WATCH: 'watch',
+  CSS: 'css',
+  FONTS: 'fonts',
+  THEME_CONFIG: 'theme.config',
+}
 
 /* Watch task triggers all automated tasks when files change */
 gulp.task(TASK.WATCH, function () {
