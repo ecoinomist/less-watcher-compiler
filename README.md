@@ -1,11 +1,12 @@
 ## LESS CSS Watcher + Compiler
-![less-watcher-compiler-cli](./docs/less-watcher-compiler.png)
+![less-watcher-compiler-cli](docs/less-watcher-compiler.png)
 1. Watch for file changes and compile less to css. 
 2. Customizable lessc options: minify, autoprefixer and flexbugs fixes using PostCSS, etc. (see below).
 3. Works when files are added/removed/edited, and watcher updates efficiently. 
 4. Resume watching after compilation errors are fixed, without exiting process.
 5. Configure multiple source files to watch for changes, and corresponding task to execute.
-6. Reload CSS without refreshing app state in browser (using [LiveReload](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei?hl=en) - better and faster than Hot reloading)
+6. Reload CSS without refreshing app state in browser ([LiveReload](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei?hl=en) - better and faster than Hot reloading)
+7. Works with any popular frontend build setup using CRA (Create React App), Next.js, jQuery, etc.
 
 ### Installation
 ```
