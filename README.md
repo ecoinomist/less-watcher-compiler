@@ -1,5 +1,5 @@
 ## LESS CSS Watcher + Compiler
-![less-watcher-compiler-cli](docs/less-watcher-compiler.png)
+![less-watcher-compiler-cli](./docs/less-watcher-compiler.png)
 1. Watch for file changes and compile less to css. 
 2. Customizable lessc options: minify, autoprefixer and flexbugs fixes using PostCSS, etc. (see below).
 3. Works when files are added/removed/edited, and watcher updates efficiently. 
@@ -14,7 +14,7 @@ yarn add -D less-watcher-compiler
 
 ### Options
 Create less-watcher-compiler.config.js (optional) in the root directory with this content:
-```
+```js
 module.exports = function (defaultConfig) {
   return {
     ...defaultConfig,
@@ -79,7 +79,7 @@ All options can be passed as command line (cli) arguments, which will override c
 
 ### Usage
 Add this script to `package.json`:
-```
+```js
   ...
   "scripts": {
     "style": "node ./node_modules/less-watcher-compiler --gulpfile ./node_modules/less-watcher-compiler/gulpfile.js --cwd ./"
@@ -87,16 +87,16 @@ Add this script to `package.json`:
 ```
 
 To watch and compile, run:
-```
+```bash
 yarn style --sourcemap
 ```
 
 To compile only once (useful for production build), run:
-```
+```bash
 NODE_ENV=production yarn style css
 ```
 
 To watch and compile with Semantic UI theme.config, run:
-```
+```bash
 yarn style watch symlink
 ```
