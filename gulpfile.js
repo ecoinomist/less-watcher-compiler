@@ -1,10 +1,10 @@
 // =============================================================================
 // CONFIGS
 // =============================================================================
-const NODE_ENV = process.env.NODE_ENV || "development"
+const NODE_ENV = process.env.NODE_ENV || 'development'
 const isProduction = NODE_ENV === 'production'
 console.log(`⚡ Running ${require('./package.json').name} ${NODE_ENV} mode`)
-const task = {
+const TASK = {
   WATCH: 'watch',
   CSS: 'css',
   FONTS: 'fonts',
@@ -18,16 +18,16 @@ const {
   flexbugsfix = true,
   javascriptEnabled = true,
   browserslist = { // browser support list
-    "production": [
-      ">0.3%",
-      "not dead",
-      "not op_mini all"
+    'production': [
+      '>0.3%',
+      'not dead',
+      'not op_mini all'
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version",
-      "last 1 ie version"
+    'development': [
+      'last 1 chrome version',
+      'last 1 firefox version',
+      'last 1 safari version',
+      'last 1 ie version'
     ]
   },
   // `less-plugin-glob` allows to import multiple less files using glob expressions (e.g. @import "common/**";)
@@ -82,33 +82,40 @@ const postcss = require('gulp-postcss')
 /* and since we only need css minification in production, speed is not important */
 
 // =============================================================================
-// VALIDATION
+// VALIDATION & PLUGIN SETUP
 // =============================================================================
 if (!plugins || plugins.constructor !== Array) throw new Error('plugins must be an array of strings')
-if (!postcssPlugins || postcssPlugins.constructor !== Array) throw new Error('plugins must be an array of strings')
-const lessPlugins = plugins.map(require)
+if (!postcssPlugins || postcssPlugins.constructor !== Array) throw new Error('postcssPlugins must be an array of strings')
+const lessPlugins = plugins.map(p => {
+  if (p === 'less-plugin-functions') return new (require(p))()
+  return require(p)
+})
+if (autoprefix) postcssPlugins.push('autoprefixer')
 if (flexbugsfix) postcssPlugins.push('postcss-flexbugs-fixes')
 if (shouldMinify) postcssPlugins.push('cssnano')
-const cssPlugins = postcssPlugins.filter((value, index, self) => self.indexOf(value) === index).map(require)
-if (autoprefix) cssPlugins.push(require('autoprefixer')({ overrideBrowserslist: browserslist }))
+const cssPlugins = postcssPlugins.filter((value, index, self) => self.indexOf(value) === index)
+  .map(p => {
+    if (p === 'autoprefixer') return require(p)({overrideBrowserslist: browserslist[NODE_ENV]})
+    return require(p)()
+  })
 
 // =============================================================================
 // TASKS
 // =============================================================================
 
 /* Watch task triggers all automated tasks when files change */
-gulp.task(task.WATCH, function () {
+gulp.task(TASK.WATCH, function () {
   liveReload.listen()
   watch(files.watch.css, function () {
-    gulp.series(task.CSS)
+    gulp.series(TASK.CSS)
   })
   watch(files.watch.fonts, function () {
-    gulp.series(task.FONTS, task.CSS)
+    gulp.series(TASK.FONTS, TASK.CSS)
   })
 })
 
 /* CSS - Compile and Minify */
-gulp.task(task.CSS, function () {
+gulp.task(TASK.CSS, function () {
   // Only minify in production
   // if (isProduction || shouldMinify) lessPlugins.push(lessMinify)
   return gulp.src(files.css)
@@ -126,7 +133,7 @@ gulp.task(task.CSS, function () {
 })
 
 // FONTS - Copy to Distribution Folder
-gulp.task(task.FONTS, function () {
+gulp.task(TASK.FONTS, function () {
   return gulp.src(files.fonts)
     .pipe(plumber())
     .pipe(rename({dirname: ''})) // make folder structure flat
@@ -134,7 +141,7 @@ gulp.task(task.FONTS, function () {
 })
 
 // theme.config - Symlink to Semantic UI config in library
-gulp.task(task.THEME_CONFIG, function (done) {
+gulp.task(TASK.THEME_CONFIG, function (done) {
   const realFile = pwd + input + 'theme.config'
   const linkFile = themeConfigPath
   const file = require('fs')
@@ -151,4 +158,4 @@ gulp.task(task.THEME_CONFIG, function (done) {
 })
 
 /* Default task for command: $ gulp */
-gulp.task('default', gulp.series(task.THEME_CONFIG, task.WATCH))
+gulp.task('default', gulp.series(TASK.THEME_CONFIG, TASK.WATCH))
