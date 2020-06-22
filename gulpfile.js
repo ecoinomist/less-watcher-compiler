@@ -4,13 +4,14 @@
 const {name} = require('./package.json')
 const NODE_ENV = (process.env.NODE_ENV || 'development').toLowerCase()
 console.log(`⚡ Running ${name} in ${NODE_ENV} mode`)
+const processDir = process.cwd() + '/'
 const packageDir = __dirname + '/'
 const configFileName = name + '.config.js'
 let defaultConfig = require(packageDir + 'config.js')()
 // Get arguments passed to command line
 const {_, ...commandConfig} = require('minimist')(process.argv.slice(2))
 try {
-  defaultConfig = require(process.cwd() + '/' + configFileName)(defaultConfig)
+  defaultConfig = require(processDir + configFileName)(defaultConfig)
 } catch (err) {
   console.log(`✓ No ${configFileName} detected, using these options:`)
 }
@@ -18,6 +19,7 @@ const config = {...defaultConfig, ...commandConfig}
 console.log(JSON.stringify(config, null, 2))
 const {
   files,
+  symlinks,
   minify,
   sourcemap,
   autoprefix,
@@ -29,9 +31,6 @@ const {
   postcssOptions,
   ...lessOptions
 } = config
-const themeConfigPath = '../../node_modules/semantic-ui-less/theme.config'
-const input = 'test/' // relative path to styles folder
-const output = 'public/static/'
 const isProduction = NODE_ENV === 'production'
 const hasSourcemap = !!sourcemap
 const shouldMinify = isProduction || !!minify
@@ -84,7 +83,7 @@ const TASK = {
   WATCH: 'watch',
   CSS: 'css',
   COPY: 'copy',
-  THEME_CONFIG: 'theme.config',
+  SYMLINK: 'symlink',
 }
 
 /* Watch task triggers all automated tasks in config.js[files] */
@@ -98,23 +97,12 @@ gulp.task(TASK.CSS, gulp.parallel(...files.filter(({task}) => task === TASK.CSS)
 // FONTS - Copy to Distribution Folder
 gulp.task(TASK.COPY, gulp.parallel(...files.filter(({task}) => task === TASK.COPY).map(copyTask)))
 
-// theme.config - Symlink to Semantic UI config in library
-gulp.task(TASK.THEME_CONFIG, function (done) {
-  const realFile = packageDir + input + 'theme.config'
-  const linkFile = themeConfigPath
-  const file = require('fs')
-  file.unlink(linkFile, function () {
-    file.symlink(
-      realFile,
-      linkFile,
-      function () {
-        console.log('Symlinked ' + realFile)
-        done()
-      }
-    )
-  })
-})
+// Symlink to Files
+gulp.task(TASK.SYMLINK, gulp.parallel(...symlinks.map(linkTask)))
 
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
 /**
  * Watch dynamic list of tasks
  */
@@ -134,7 +122,7 @@ function watchTask ({watch: changes, compile, task, output, renameOptions}) {
 
 /* CSS - Compile and Minify */
 function cssTask ({task, compile, output, renameOptions}) {
-  const t = () => gulp.src(compile)
+  const t = () => gulp.src(processDir + compile)
     .pipe(plumber(function (error) {
       log(error.message)
       this.emit('end')
@@ -144,7 +132,7 @@ function cssTask ({task, compile, output, renameOptions}) {
     .pipe(postcss(cssPlugins, postcssOptions))
     .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
     .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
-    .pipe(gulp.dest(output))
+    .pipe(gulp.dest(processDir + output))
     .pipe(liveReload())
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
   return t
@@ -152,11 +140,29 @@ function cssTask ({task, compile, output, renameOptions}) {
 
 /* Copy to Distribution Folder */
 function copyTask ({task, compile, output, rename: renameOptions}) {
-  const t = () => gulp.src(compile)
+  const t = () => gulp.src(processDir + compile)
     .pipe(plumber())
     .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
-    .pipe(gulp.dest(output))
+    .pipe(gulp.dest(processDir + output))
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
+  return t
+}
+
+/* Symlink Files */
+function linkTask ({target, link}) {
+  const t = (done) => {
+    const sourceFile = processDir + target
+    const linkingFile = processDir + link
+    const file = require('fs')
+    file.unlink(linkingFile, function () {
+      file.symlink(
+        sourceFile,
+        linkingFile,
+        done
+      )
+    })
+  }
+  Object.defineProperty(t, 'name', {value: `${TASK.SYMLINK}: ${link} -> ${target}`, writable: false})
   return t
 }
 

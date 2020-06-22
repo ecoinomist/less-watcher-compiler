@@ -19,7 +19,8 @@
     "autoprefixer",
     "flexbugs",
     "minify",
-    "gulp"
+    "gulp",
+    "semantic-ui"
   ],
   "scripts": {
     "style": "./node_modules/gulp/bin/gulp.js"

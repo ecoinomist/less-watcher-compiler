@@ -38,6 +38,13 @@ module.exports = function (defaultConfig) {
         renameOptions: {dirname: ''}, // make folder structure flat on output, using `gulp-rename` npm package
       },
     ],
+    symlinks: [ // useful for Semantic UI theme.config setup using `semantic-ui-less` library
+      {
+        // paths are relative to process.cwd()
+        target: 'style/theme.config', // path to the source file to reference
+        link: 'node_modules/semantic-ui-less/theme.config' // path to the file that references the target
+      }
+    ],
     minify: false,
     sourcemap: false,
     autoprefix: true,
