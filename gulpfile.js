@@ -10,13 +10,15 @@ const configFileName = name + '.config.js'
 let defaultConfig = require(packageDir + 'config.js')()
 // Get arguments passed to command line
 const {_, ...commandConfig} = require('minimist')(process.argv.slice(2))
+let noConfig = false
 try {
   defaultConfig = require(processDir + configFileName)(defaultConfig)
 } catch (err) {
+  noConfig = true
   console.log(`✓ No ${configFileName} detected, using these options:`)
 }
 const config = {...defaultConfig, ...commandConfig}
-console.log(JSON.stringify(config, null, 2))
+if (noConfig) console.log(JSON.stringify(config, null, 2))
 const {
   files,
   symlinks,

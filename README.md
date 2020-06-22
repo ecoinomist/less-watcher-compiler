@@ -80,7 +80,7 @@ Add this script to `package.json`:
 ```
   ...
   "scripts": {
-    "style": "./node_modules/less-watcher-compiler"
+    "style": "node ./node_modules/less-watcher-compiler --gulpfile ./node_modules/less-watcher-compiler/gulpfile.js --cwd ./"
   ...
 ```
 
