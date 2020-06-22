@@ -1,6 +1,6 @@
 {
   "name": "less-watcher-compiler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Watch for file changes and compile LESS to CSS. PostCSS minify, autoprefixer and flexbugs fixes.",
   "license": "MIT",
   "main": "index.js",
@@ -23,7 +23,7 @@
     "semantic-ui"
   ],
   "scripts": {
-    "style": "./node_modules/gulp/bin/gulp.js"
+    "style": "node index.js"
   },
   "devDependencies": {
     "autoprefixer": "^9.8.2",

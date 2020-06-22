@@ -96,5 +96,5 @@ NODE_ENV=production yarn style css
 
 To watch and compile with Semantic UI theme.config, run:
 ```
-yarn style theme.config watch
+yarn style watch symlink
 ```

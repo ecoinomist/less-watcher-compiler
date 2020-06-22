@@ -1,1 +1,1 @@
-module.exports = require("./node_modules/gulp/bin/gulp.js")
+module.exports = require("gulp/bin/gulp.js")
