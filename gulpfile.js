@@ -1,56 +1,40 @@
 // =============================================================================
 // CONFIGS
 // =============================================================================
+const {name} = require('./package.json')
+const NODE_ENV = (process.env.NODE_ENV || 'development').toLowerCase()
+console.log(`⚡ Running ${name} in ${NODE_ENV} mode`)
+const packageDir = __dirname + '/'
+const configFileName = name + '.config.js'
+let defaultConfig = require(packageDir + 'config.js')()
+// Get arguments passed to command line
+const {_, ...commandConfig} = require('minimist')(process.argv.slice(2))
+try {
+  defaultConfig = require(process.cwd() + '/' + configFileName)(defaultConfig)
+} catch (err) {
+  console.log(`✓ No ${configFileName} detected, using these options:`)
+}
+const config = {...defaultConfig, ...commandConfig}
+console.log(JSON.stringify(config, null, 2))
+const {
+  files,
+  minify,
+  sourcemap,
+  autoprefix,
+  flexbugsfix,
+  javascriptEnabled,
+  browserslist,
+  plugins,
+  postcssPlugins = [],
+  postcssOptions,
+  ...lessOptions
+} = config
 const themeConfigPath = '../../node_modules/semantic-ui-less/theme.config'
 const input = 'test/' // relative path to styles folder
 const output = 'public/static/'
-const pwd = __dirname + '/'
-const NODE_ENV = process.env.NODE_ENV || 'development'
 const isProduction = NODE_ENV === 'production'
-console.log(`⚡ Running ${require('./package.json').name} ${NODE_ENV} mode`)
-// Get arguments passed to command line
-const {
-  minify,
-  sourcemap,
-  autoprefix = true,
-  flexbugsfix = true,
-  javascriptEnabled = true,
-  browserslist = { // browser support list
-    'production': [
-      '>0.3%',
-      'not dead',
-      'not op_mini all'
-    ],
-    'development': [
-      'last 1 chrome version',
-      'last 1 firefox version',
-      'last 1 safari version',
-      'last 1 ie version'
-    ]
-  },
-  // `less-plugin-glob` allows to import multiple less files using glob expressions (e.g. @import "common/**";)
-  // `less-plugin-functions` allows to define custom less js-like functions
-  plugins = ['less-plugin-glob', 'less-plugin-functions'],
-  postcssPlugins = [],
-  postcssOptions,
-} = require('minimist')(process.argv.slice(2))
 const hasSourcemap = !!sourcemap
 const shouldMinify = isProduction || !!minify
-const files = {
-  // Files to watch
-  watch: {
-    css: [input + '**/*.less', input + 'override/**/*', input + 'theme.config'],
-    fonts: input + 'fonts/**/*',
-  },
-  // Files to compile
-  css: input + '_all.less',
-  fonts: input + 'fonts/**/*.{eot,eof,svg,ttf,woff,woff2}',
-  // Distribution folders
-  build: {
-    css: output,
-    fonts: output + 'fonts/',
-  }
-}
 
 // =============================================================================
 // DEPENDENCIES
@@ -96,54 +80,27 @@ const cssPlugins = postcssPlugins.filter((value, index, self) => self.indexOf(va
 // =============================================================================
 // TASKS
 // =============================================================================
-
 const TASK = {
   WATCH: 'watch',
   CSS: 'css',
-  FONTS: 'fonts',
+  COPY: 'copy',
   THEME_CONFIG: 'theme.config',
 }
 
-/* Watch task triggers all automated tasks when files change */
+/* Watch task triggers all automated tasks in config.js[files] */
 gulp.task(TASK.WATCH, function () {
   liveReload.listen()
-  watch(files.watch.css, function () {
-    gulp.series(TASK.CSS)
-  })
-  watch(files.watch.fonts, function () {
-    gulp.series(TASK.FONTS, TASK.CSS)
-  })
+  return files.map(watchTask)
 })
 
-/* CSS - Compile and Minify */
-gulp.task(TASK.CSS, function () {
-  // Only minify in production
-  // if (isProduction || shouldMinify) lessPlugins.push(lessMinify)
-  return gulp.src(files.css)
-    .pipe(plumber(function (error) {
-      log(error.message)
-      this.emit('end')
-    }))
-    .pipe(gulpIf(hasSourcemap, sourcemaps.init()))
-    .pipe(less({plugins: lessPlugins, javascriptEnabled}))
-    // .pipe(rename({basename: 'all'}))
-    .pipe(postcss(cssPlugins, postcssOptions))
-    .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
-    .pipe(gulp.dest(files.build.css))
-    .pipe(liveReload())
-})
+gulp.task(TASK.CSS, gulp.parallel(...files.filter(({task}) => task === TASK.CSS).map(cssTask)))
 
 // FONTS - Copy to Distribution Folder
-gulp.task(TASK.FONTS, function () {
-  return gulp.src(files.fonts)
-    .pipe(plumber())
-    .pipe(rename({dirname: ''})) // make folder structure flat
-    .pipe(gulp.dest(files.build.fonts))
-})
+gulp.task(TASK.COPY, gulp.parallel(...files.filter(({task}) => task === TASK.COPY).map(copyTask)))
 
 // theme.config - Symlink to Semantic UI config in library
 gulp.task(TASK.THEME_CONFIG, function (done) {
-  const realFile = pwd + input + 'theme.config'
+  const realFile = packageDir + input + 'theme.config'
   const linkFile = themeConfigPath
   const file = require('fs')
   file.unlink(linkFile, function () {
@@ -158,5 +115,57 @@ gulp.task(TASK.THEME_CONFIG, function (done) {
   })
 })
 
+/**
+ * Watch dynamic list of tasks
+ */
+function watchTask ({watch: changes, compile, task, output, renameOptions}) {
+  const id = idFrom({task, compile})
+  gulp.task(id, function () {
+    switch (task) {
+      case TASK.CSS:
+        return cssTask({task, compile, output, renameOptions})()
+      case TASK.COPY:
+      default:
+        return copyTask({task, compile, output, renameOptions})()
+    }
+  })
+  return watch(changes, gulp.series(id))
+}
+
+/* CSS - Compile and Minify */
+function cssTask ({task, compile, output, renameOptions}) {
+  const t = () => gulp.src(compile)
+    .pipe(plumber(function (error) {
+      log(error.message)
+      this.emit('end')
+    }))
+    .pipe(gulpIf(hasSourcemap, sourcemaps.init()))
+    .pipe(less({plugins: lessPlugins, javascriptEnabled, ...lessOptions}))
+    .pipe(postcss(cssPlugins, postcssOptions))
+    .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
+    .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
+    .pipe(gulp.dest(output))
+    .pipe(liveReload())
+  Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
+  return t
+}
+
+/* Copy to Distribution Folder */
+function copyTask ({task, compile, output, rename: renameOptions}) {
+  const t = () => gulp.src(compile)
+    .pipe(plumber())
+    .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
+    .pipe(gulp.dest(output))
+  Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
+  return t
+}
+
+/**
+ * Crate Unique Task ID
+ */
+function idFrom({task, compile}) {
+  return  `${task} -> ${compile}`
+}
+
 /* Default task for command: $ gulp */
-gulp.task('default', gulp.series(TASK.THEME_CONFIG, TASK.WATCH))
+exports.default = gulp.series(TASK.WATCH)
