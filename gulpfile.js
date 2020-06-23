@@ -141,7 +141,7 @@ function cssTask ({task, compile, output, renameOptions}) {
 }
 
 /* Copy to Distribution Folder */
-function copyTask ({task, compile, output, rename: renameOptions}) {
+function copyTask ({task, compile, output, renameOptions}) {
   const t = () => gulp.src(processDir + compile)
     .pipe(plumber())
     .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
