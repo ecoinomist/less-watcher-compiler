@@ -1,5 +1,7 @@
-config/
-pages/
-public/
-style/
+config
+pages
+public
+style
+node_modules
 .next
+yarn.lock
