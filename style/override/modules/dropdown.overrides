@@ -1,9 +1,0 @@
-/*******************************
-        User Overrides
-*******************************/
-@import "../../fonts/icons/variables";
-.ui.selection.dropdown {
-  > .dropdown.icon:before {
-    content: @dropdown;
-  }
-}

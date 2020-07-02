@@ -46,8 +46,5 @@
     "less-plugin-glob": "^3.0.0",
     "minimist": "^1.2.5",
     "postcss-flexbugs-fixes": "^4.2.1"
-  },
-  "devDependencies": {
-    "semantic-ui-less": "2.4.1"
   }
 }
