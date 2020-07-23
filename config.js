@@ -57,7 +57,9 @@ module.exports = function () {
         'last 1 ie version'
       ]
     },
-    postcssPlugins: [], // additional PostCSS plugins to use (you must install them yourself)
+    postcssPlugins: [ // additional PostCSS plugins to use (you must install them yourself)
+      // ['postcss-prefixwrap', '#my-app'] // example of namespacing all rules using unique id `my-app`
+    ],
     postcssOptions: undefined, // additional PostCSS options to use (i.e. `{ parser: 'sugarss' }`)
     plugins: [
       'less-plugin-glob',

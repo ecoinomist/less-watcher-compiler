@@ -1,6 +1,7 @@
 // =============================================================================
 // CONFIGS
 // =============================================================================
+
 const {name} = require('./package.json')
 const NODE_ENV = (process.env.NODE_ENV || 'development').toLowerCase()
 console.log(`⚡ Running ${name} in ${NODE_ENV} mode`)
@@ -64,7 +65,7 @@ const postcss = require('gulp-postcss')
 // VALIDATION & PLUGIN SETUP
 // =============================================================================
 if (!plugins || plugins.constructor !== Array) throw new Error('plugins must be an array of strings')
-if (!postcssPlugins || postcssPlugins.constructor !== Array) throw new Error('postcssPlugins must be an array of strings')
+if (!postcssPlugins || postcssPlugins.constructor !== Array) throw new Error('postcssPlugins must be an array of String|Array')
 const lessPlugins = plugins.map(p => {
   if (p === 'less-plugin-functions') return new (require(p))()
   return require(p)
@@ -72,10 +73,12 @@ const lessPlugins = plugins.map(p => {
 if (autoprefix) postcssPlugins.push('autoprefixer')
 if (flexbugsfix) postcssPlugins.push('postcss-flexbugs-fixes')
 if (shouldMinify) postcssPlugins.push('cssnano')
-const cssPlugins = postcssPlugins.filter((value, index, self) => self.indexOf(value) === index)
+const cssPlugins = postcssPlugins
+  .filter((value, index, self) => self.indexOf(value) === index) // remove duplicates
   .map(p => {
     if (p === 'autoprefixer') return require(p)({overrideBrowserslist: browserslist[NODE_ENV]})
-    return require(p)()
+    const [pluginName, ...args] = p.constructor === Array ? p : [p]
+    return require(pluginName)(...args)
   })
 
 // =============================================================================
