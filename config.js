@@ -45,17 +45,16 @@ module.exports = function () {
     flexbugsfix: true,
     javascriptEnabled: true,
     browserslist: {
-      'production': [
-        '>0.3%',
-        'not dead',
-        'not op_mini all'
-      ],
-      'development': [
-        'last 1 chrome version',
-        'last 1 firefox version',
-        'last 1 safari version',
-        'last 1 ie version'
-      ]
+      browserslist: {
+        'production': [
+          'defaults',
+        ],
+        'development': [
+          'last 1 chrome version',
+          'last 1 firefox version',
+          'last 1 safari version',
+        ],
+      },
     },
     postcssPlugins: [ // additional PostCSS plugins to use (you must install them yourself)
       // ['postcss-prefixwrap', '#my-app'] // example of namespacing all rules using unique id `my-app`

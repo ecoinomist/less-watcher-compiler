@@ -97,13 +97,15 @@ gulp.task(TASK.WATCH, function () {
   return files.map(watchTask)
 })
 
-gulp.task(TASK.CSS, gulp.parallel(...files.filter(({task}) => task === TASK.CSS).map(cssTask)))
+const cssTasks = files.filter(({task}) => task === TASK.CSS).map(cssTask)
+if (cssTasks.length) gulp.task(TASK.CSS, gulp.parallel(...cssTasks))
 
 // FONTS - Copy to Distribution Folder
-gulp.task(TASK.COPY, gulp.parallel(...files.filter(({task}) => task === TASK.COPY).map(copyTask)))
+const copyTasks = files.filter(({task}) => task === TASK.COPY).map(copyTask)
+if (copyTasks.length) gulp.task(TASK.COPY, gulp.parallel(...copyTasks))
 
 // Symlink to Files
-gulp.task(TASK.SYMLINK, gulp.parallel(...symlinks.map(linkTask)))
+if (symlinks && symlinks.length) gulp.task(TASK.SYMLINK, gulp.parallel(...symlinks.map(linkTask)))
 
 // =============================================================================
 // HELPER FUNCTIONS
