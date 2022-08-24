@@ -11,8 +11,8 @@ module.exports = function () {
         compile: 'style/_all.less', // file/s to compile when changes detected, using glob pattern
         output: 'public/static/', // destination directory where new file/s should be saved
         renameOptions: {basename: 'all'}, // change output file name
-        // optional callback each time the task finishes https://github.com/Tiross/gulp-custom-callback
-        callback: (file, encoding, cb) => {},
+        // optional callback each time the task finishes
+        callback: (file) => {},
       },
       {
         task: 'copy', // copy over `compile` file/s to `output` directory without compilation

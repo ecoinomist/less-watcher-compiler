@@ -114,15 +114,15 @@ if (symlinks && symlinks.length) gulp.task(TASK.SYMLINK, gulp.parallel(...symlin
 /**
  * Watch dynamic list of tasks
  */
-function watchTask ({watch: changes, compile, task, output, renameOptions}) {
+function watchTask ({watch: changes, compile, task, output, renameOptions, callback}) {
   const id = idFrom({task, compile})
   gulp.task(id, function () {
     switch (task) {
       case TASK.CSS:
-        return cssTask({task, compile, output, renameOptions})()
+        return cssTask({task, compile, output, renameOptions, callback})()
       case TASK.COPY:
       default:
-        return copyTask({task, compile, output, renameOptions})()
+        return copyTask({task, compile, output, renameOptions, callback})()
     }
   })
   return watch(changes, gulp.series(id))
