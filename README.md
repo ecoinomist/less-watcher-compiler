@@ -21,14 +21,9 @@ All options can be passed as command line (cli) arguments, which will override c
 ### Usage
 Add this script to `package.json`:
 ```js
-  ...
-"scripts"
-:
-{
-  "style"
-:
-  "gulp --gulpfile ./node_modules/less-watcher-compiler/gulpfile.js --cwd ./"
-...
+  "scripts": {
+    "style": "gulp --gulpfile ./node_modules/less-watcher-compiler/gulpfile.js --cwd ./"
+  }
 ```
 
 To watch and compile, run:

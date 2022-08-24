@@ -42,9 +42,9 @@ const shouldMinify = isProduction || !!minify
 // DEPENDENCIES
 // =============================================================================
 const gulp = require('gulp')
+const gulpCb = require('gulp-custom-callback')
 /* report what gulp is doing */
 const gulpIf = require('gulp-if')
-const gulpCb = require('gulp-custom-callback')
 /* watches all changes including new files */
 const watch = require('gulp-watch')
 /* maps output to source files for debugging */
@@ -129,7 +129,7 @@ function watchTask ({watch: changes, compile, task, output, renameOptions}) {
 }
 
 /* CSS - Compile and Minify */
-function cssTask ({task, compile, output, renameOptions, callback = () => {}}) {
+function cssTask ({task, compile, output, renameOptions, callback}) {
   const t = () => gulp.src(processDir + compile)
     .pipe(plumber(function (error) {
       log(error.message)
@@ -142,18 +142,24 @@ function cssTask ({task, compile, output, renameOptions, callback = () => {}}) {
     .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
     .pipe(gulp.dest(processDir + output))
     .pipe(liveReload())
-    .pipe(gulpCb(callback))
+    .pipe(gulpCb(function (file, encoding, cb) {
+      if (callback) callback(...arguments)
+      cb()
+    }))
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
   return t
 }
 
 /* Copy to Distribution Folder */
-function copyTask ({task, compile, output, renameOptions, callback = () => {}}) {
+function copyTask ({task, compile, output, renameOptions, callback}) {
   const t = () => gulp.src(processDir + compile)
     .pipe(plumber())
     .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
     .pipe(gulp.dest(processDir + output))
-    .pipe(gulpCb(callback))
+    .pipe(gulpCb(function (file, encoding, cb) {
+      if (callback) callback(...arguments)
+      cb()
+    }))
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
   return t
 }

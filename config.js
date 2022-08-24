@@ -12,7 +12,7 @@ module.exports = function () {
         output: 'public/static/', // destination directory where new file/s should be saved
         renameOptions: {basename: 'all'}, // change output file name
         // optional callback each time the task finishes https://github.com/Tiross/gulp-custom-callback
-        callback: (file, enc, cb) => {},
+        callback: (file, encoding, cb) => {},
       },
       {
         task: 'copy', // copy over `compile` file/s to `output` directory without compilation
