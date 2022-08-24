@@ -1,6 +1,6 @@
 {
   "name": "less-watcher-compiler",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Watch for file changes and compile LESS to CSS. PostCSS minify, autoprefixer and flexbugs fixes.",
   "license": "MIT",
   "main": "index.js",
@@ -29,7 +29,7 @@
   "scripts": {
     "style": "node index.js"
   },
-  "devDependencies": {
+  "dependencies": {
     "autoprefixer": "^10.4.7",
     "cssnano": "^5.1.12",
     "fancy-log": "^2.0.0",
