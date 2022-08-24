@@ -42,7 +42,6 @@ const shouldMinify = isProduction || !!minify
 // DEPENDENCIES
 // =============================================================================
 const gulp = require('gulp')
-const gulpCb = require('gulp-custom-callback')
 /* report what gulp is doing */
 const gulpIf = require('gulp-if')
 /* watches all changes including new files */
@@ -53,6 +52,7 @@ const sourcemaps = require('gulp-sourcemaps')
 const plumber = require('gulp-plumber')
 const rename = require('gulp-rename')
 const liveReload = require('gulp-livereload')
+const stream = require('readable-stream')
 const log = require('fancy-log')
 /* compiles less files to css */
 const less = require('gulp-less')
@@ -142,10 +142,7 @@ function cssTask ({task, compile, output, renameOptions, callback}) {
     .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
     .pipe(gulp.dest(processDir + output))
     .pipe(liveReload())
-    .pipe(gulpCb(function (file, encoding, cb) {
-      if (callback) callback(...arguments)
-      cb()
-    }))
+    .pipe(createCb(callback))
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
   return t
 }
@@ -156,10 +153,7 @@ function copyTask ({task, compile, output, renameOptions, callback}) {
     .pipe(plumber())
     .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
     .pipe(gulp.dest(processDir + output))
-    .pipe(gulpCb(function (file, encoding, cb) {
-      if (callback) callback(...arguments)
-      cb()
-    }))
+    .pipe(createCb(callback))
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
   return t
 }
@@ -185,8 +179,21 @@ function linkTask ({target, link}) {
 /**
  * Crate Unique Task ID
  */
-function idFrom({task, compile}) {
-  return  `${task} -> ${compile}`
+function idFrom ({task, compile}) {
+  return `${task} -> ${compile}`
+}
+
+/**
+ * Create Gulp Task Callback
+ */
+function createCb (callback) {
+  const glr = new stream.PassThrough({
+    objectMode: true,
+  })
+
+  if (callback) glr.on('data', callback)
+
+  return glr
 }
 
 /* Default task for command: $ gulp */

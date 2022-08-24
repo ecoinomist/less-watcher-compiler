@@ -1,6 +1,6 @@
 {
   "name": "less-watcher-compiler",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Watch for file changes and compile LESS to CSS. PostCSS minify, autoprefixer and flexbugs fixes.",
   "license": "MIT",
   "main": "index.js",
@@ -34,7 +34,6 @@
     "cssnano": "^5.1.12",
     "fancy-log": "^2.0.0",
     "gulp": "^4.0.2",
-    "gulp-custom-callback": "^1.0.2",
     "gulp-if": "^3.0.0",
     "gulp-less": "^5.0.0",
     "gulp-livereload": "^4.0.2",
@@ -47,6 +46,7 @@
     "less-plugin-glob": "^3.0.0",
     "minimist": "^1.2.6",
     "postcss": "^8.4.14",
-    "postcss-flexbugs-fixes": "^5.0.2"
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "readable-stream": "^4.1.0"
   }
 }
