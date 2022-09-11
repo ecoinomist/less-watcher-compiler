@@ -141,8 +141,8 @@ function cssTask ({task, compile, output, renameOptions, callback}) {
     .pipe(gulpIf(!!renameOptions, rename(renameOptions)))
     .pipe(gulpIf(hasSourcemap, sourcemaps.write('.')))
     .pipe(gulp.dest(processDir + output))
-    .pipe(liveReload())
     .pipe(createCb(callback))
+    .pipe(liveReload())
   Object.defineProperty(t, 'name', {value: idFrom({task, compile}), writable: false})
   return t
 }

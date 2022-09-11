@@ -50,12 +50,17 @@ module.exports = function () {
       browserslist: {
         'production': [
           'defaults',
+          // '>0.3%',
+          // 'not dead',
+          // 'not op_mini all'
         ],
         'development': [
-          'last 1 chrome version',
-          'last 1 firefox version',
-          'last 1 safari version',
-        ],
+          'last 1 version', // this makes sure there is -moz prefix
+          // 'last 1 chrome version',
+          // 'last 1 firefox version',
+          // 'last 1 safari version',
+          // 'last 1 ie version'
+        ]
       },
     },
     postcssPlugins: [ // additional PostCSS plugins to use (you must install them yourself)
